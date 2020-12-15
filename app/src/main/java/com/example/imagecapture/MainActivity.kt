@@ -27,6 +27,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var captureimage: Bitmap
     lateinit var imagedata: String
     lateinit var imageuri: Uri
+    var PICKETOGALLARY_CODE=100
+    var PICKTOCAMERA_CODE=200
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,17 +50,17 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(android.Manifest.permission.CAMERA),
-                100
+                PICKTOCAMERA_CODE
             )
         }
         tvGallary.setOnClickListener {
             var intenGallary = Intent(Intent.ACTION_GET_CONTENT)
             intenGallary.setType("image/*")
-            startActivityForResult(intenGallary, 100)
+            startActivityForResult(intenGallary, PICKETOGALLARY_CODE)
         }
         tvCamera.setOnClickListener {
             var intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            startActivityForResult(intent, 100)
+            startActivityForResult(intent, PICKTOCAMERA_CODE)
         }
 
         imageView.setOnClickListener {
@@ -73,23 +75,31 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == RESULT_OK && requestCode == 100) {
+        // Camera Request
+        if (resultCode == RESULT_OK && requestCode == PICKTOCAMERA_CODE) {
             captureimage = data!!.extras!!.get("data") as Bitmap
 
-            if (captureimage==null) {
-                imageuri = data.data!!
-                captureimage = MediaStore.Images.Media.getBitmap(contentResolver, imageuri)
-                imageView.setImageBitmap(captureimage)
-            } else {
-                imageView.setImageBitmap(captureimage)
 
-            }
-
+            imageView.setImageBitmap(captureimage)
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
-        } else if (resultCode == RESULT_CANCELED) {
+        } else if (resultCode == RESULT_CANCELED)
+          {
+
+          }
+         // Gallary Request
+         else if (resultCode== RESULT_OK && requestCode== PICKETOGALLARY_CODE)
+         {
+        if (data != null) {
+            imageuri = data.data!!
+            var captureimages = MediaStore.Images.Media.getBitmap(contentResolver, imageuri)
+            imageView.setImageBitmap(captureimages)
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
         }
+
+    }
+
     }
 
     fun imageTostring(bitmap: Bitmap): String {
